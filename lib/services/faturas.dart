@@ -16,6 +16,8 @@ Future<List<Fatura>> fetchFaturas(String cpf) async {
     print(faturasJson);
     return faturasJson.map((json) => Fatura.fromJson(json)).toList();
   } else {
+    // log erro
+    print(response.statusCode);
     throw Exception('Falha ao carregar as faturas');
   }
 }

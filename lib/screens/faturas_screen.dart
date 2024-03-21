@@ -45,7 +45,7 @@ class _FaturasScreenState extends State<FaturasScreen> {
         child: FutureBuilder<List<Fatura>>(
           future: futureFaturas,
           builder: (context, snapshot) {
-            if (snapshot.hasData) {
+            if (snapshot.hasData && snapshot.data!.isNotEmpty) {
               return ListView.builder(
                 itemCount: snapshot.data!.length,
                 itemBuilder: (context, index) {
@@ -59,7 +59,10 @@ class _FaturasScreenState extends State<FaturasScreen> {
                         gradient: LinearGradient(
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
-                          colors: [Color.fromARGB(255, 255, 255, 255), Color.fromARGB(255, 255, 255, 255)],
+                          colors: [
+                            Color.fromARGB(255, 255, 255, 255),
+                            Color.fromARGB(255, 255, 255, 255)
+                          ],
                         ),
                       ),
                       child: Column(
@@ -160,7 +163,31 @@ class _FaturasScreenState extends State<FaturasScreen> {
                 },
               );
             } else if (snapshot.hasError) {
-              return Text('${snapshot.error}');
+              // Chama o modal de erro quando o FutureBuilder completa com erro
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: const Text('Erro'),
+                      content:
+                          const Text('Não encontramos faturas para este CPF'),
+                      actions: <Widget>[
+                        TextButton(
+                          child: const Text('OK'),
+                          onPressed: () {
+                            Navigator.of(context).pop(); // Fecha o modal
+                            Navigator.of(context).pushReplacementNamed(
+                                '/login'); // Navega para a tela de login
+                          },
+                        ),
+                      ],
+                    );
+                  },
+                );
+              });
+              return const Text(
+                  'Carregando...'); // Ou algum outro widget de espera/carregamento
             }
             return const CircularProgressIndicator();
           },
