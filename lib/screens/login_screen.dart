@@ -26,7 +26,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
 void initInactivityTimer() {
-  inactivityTimer = Timer(const Duration(seconds: 20), () {
+  inactivityTimer = Timer(const Duration(seconds: 320), () {
     if (mounted) {
       Fluttertoast.showToast(
         msg: "Inatividade detectada",
