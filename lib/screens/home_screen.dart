@@ -20,7 +20,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => Navigator.pushNamed(context, '/login'),
+      onTap: () => Navigator.pushNamed(context, '/menu'),
       child: Scaffold(
         body: Stack(
           children: [
@@ -42,20 +42,19 @@ class _HomeScreenState extends State<HomeScreen> {
                       style: ElevatedButton.styleFrom(
                         foregroundColor: Colors.white,
                         backgroundColor: const Color(0xFFF9BE2B),
-                        padding: const EdgeInsets.fromLTRB(100, 20, 100,
-                            12), // Aumenta o padding superior e diminui o inferior4
+                        padding: const EdgeInsets.fromLTRB(100, 20, 100, 12),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8.0),
                           side: const BorderSide(color: Colors.white, width: 6),
                         ),
                       ),
-                      onPressed: () => Navigator.pushNamed(context, '/login'),
+                      onPressed: () => Navigator.pushNamed(context, '/menu'),
                       child: const Text(
                         'Toque para entrar',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 40,
-                          fontFamily: 'lucky', // Use your custom font here
+                          fontFamily: 'lucky',
                         ),
                       ),
                     ),

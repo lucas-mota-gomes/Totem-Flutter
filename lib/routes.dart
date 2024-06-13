@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:totem/screens/faturas_screen.dart';
 import 'package:totem/screens/home_screen.dart';
 import 'package:totem/screens/login_screen.dart';
+import 'package:totem/screens/menu_screen.dart';
 
 class RouteGenerator {
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -12,6 +13,8 @@ class RouteGenerator {
         return MaterialPageRoute(builder: (_) => const HomeScreen());
       case '/login':
         return MaterialPageRoute(builder: (_) => const LoginScreen());
+      case '/menu':
+        return MaterialPageRoute(builder: (_) => const MenuScreen());
       case '/faturas':
         if (args is String) {
           return MaterialPageRoute(
