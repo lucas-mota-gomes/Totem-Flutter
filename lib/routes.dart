@@ -14,7 +14,7 @@ class RouteGenerator {
       case '/login':
         return MaterialPageRoute(builder: (_) => const LoginScreen());
       case '/menu':
-        return MaterialPageRoute(builder: (_) => const MenuScreen());
+        return MaterialPageRoute(builder: (_) => MenuScreen());
       case '/faturas':
         if (args is String) {
           return MaterialPageRoute(

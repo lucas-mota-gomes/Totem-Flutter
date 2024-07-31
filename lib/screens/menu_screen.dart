@@ -1,40 +1,60 @@
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:totem/models/planos.dart';
+import 'package:totem/models/planos_repository.dart';
 
 class MenuScreen extends StatelessWidget {
-  const MenuScreen({Key? key}) : super(key: key);
+  MenuScreen({Key? key}) : super(key: key);
 
   void _showPlanModal(BuildContext context, String planType) {
+    final plans = PlanosRepository.getPlans(planType);
+    final List<GlobalKey> keys =
+        List.generate(plans.length, (index) => GlobalKey());
+    double minWidth = 0;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      for (var key in keys) {
+        final context = key.currentContext;
+        if (context != null) {
+          final width = context.size?.width ?? 0;
+          if (width > minWidth) {
+            minWidth = width;
+          }
+        }
+      }
+    });
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Planos $planType'),
+          backgroundColor: Color(0xFF3e6e96), // Cor do fundo do modal alterada
+          title:
+              Text('Planos $planType', style: TextStyle(color: Colors.white)),
           content: SingleChildScrollView(
-            // Optional: allow scrolling if content is too large
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
-                SizedBox(
-                  height: 650.0, // Defina a altura desejada
-                  child: AspectRatio(
-                    aspectRatio:
-                        16 / 9, // Defina a proporção desejada (ex: 16:9)
-                    child: CarouselSlider.builder(
-                      itemCount: _getPlans(planType).length,
-                      itemBuilder: (BuildContext context, int itemIndex,
-                          int pageViewIndex) {
-                        final plan = _getPlans(planType)[itemIndex];
-                        return _buildPlanCard(
-                            plan['title']!, plan['description']!);
-                      },
-                      options: CarouselOptions(
-                        height: 1000.0, // Ajuste à altura do SizedBox
-                        enableInfiniteScroll: false,
-                        enlargeCenterPage: true,
-                        viewportFraction:
-                            0.8, // Opcional: controla a largura do item central
-                      ),
+                AspectRatio(
+                  aspectRatio: 16 / 9,
+                  child: CarouselSlider.builder(
+                    itemCount: plans.length,
+                    itemBuilder: (BuildContext context, int itemIndex,
+                        int pageViewIndex) {
+                      final plan = plans[itemIndex];
+                      return PlanCard(
+                        key: keys[itemIndex],
+                        title: plan.title,
+                        description: plan.description,
+                        advantages: plan.advantages,
+                        minWidth: minWidth,
+                      );
+                    },
+                    options: CarouselOptions(
+                      height: MediaQuery.of(context).size.height * 0.7,
+                      enableInfiniteScroll: false,
+                      enlargeCenterPage: true,
+                      viewportFraction: 0.8,
                     ),
                   ),
                 ),
@@ -43,7 +63,12 @@ class MenuScreen extends StatelessWidget {
           ),
           actions: <Widget>[
             TextButton(
-              child: Text('Fechar'),
+              style: TextButton.styleFrom(
+                backgroundColor: Color(0xFFFFA00D),
+                foregroundColor: Colors.white,
+              ),
+              child:
+                  Text('Fechar', style: TextStyle(fontWeight: FontWeight.bold)),
               onPressed: () {
                 Navigator.of(context).pop();
               },
@@ -52,110 +77,6 @@ class MenuScreen extends StatelessWidget {
         );
       },
     );
-  }
-
-  Widget _buildPlanCard(String title, String description) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 38.0),
-            ),
-            SizedBox(height: 8.0),
-            Text(description, style: TextStyle(fontSize: 26.0)),
-          ],
-        ),
-      ),
-    );
-  }
-
-  List<Map<String, String>> _getPlans(String planType) {
-    if (planType == 'Combos') {
-      return [
-        {
-          'title': 'COMBO I',
-          'description':
-              '300 MEGA DOWNLOAD\n100 MEGA UPLOAD\n\nR\$ 139,90\nWI-FI PLUS 5 EM COMODATO\nINTERNET 12 GB NO MÓVEL\nLIGAÇÕES ILIMITADAS NO MÓVEL\nACUMULO DO MÊS ANTERIOR\nPORTABILIDADE GRATUITA\nFIBRA STREAMING + TV\nTELEMEDICINA SULAMERICA\nFIDELIDADE DE 12 MESES\nSEM SURPRESA NA CONTA\nSEM CONSUMO DE DADOS\n(*PAGAMENTO VIA PIX ATÉ O VENCIMENTO)',
-        },
-        {
-          'title': 'COMBO II',
-          'description':
-              '400 MEGA DOWNLOAD\n150 MEGA UPLOAD\n\nR\$ 169,90\nWI-FI PLUS 5 EM COMODATO\nINTERNET 17 GB NO MÓVEL\nLIGAÇÕES ILIMITADAS NO MÓVEL\nACUMULO DO MÊS ANTERIOR\nPORTABILIDADE GRATUITA\nFIBRA STREAMING + TV\nTELEMEDICINA SULAMERICA\nFIDELIDADE DE 12 MESES\nSEM SURPRESA NA CONTA\nSEM CONSUMO DE DADOS\n(*PAGAMENTO VIA PIX ATÉ O VENCIMENTO)',
-        },
-        {
-          'title': 'COMBO III',
-          'description':
-              '600 MEGA DOWNLOAD\n200 MEGA UPLOAD\n\nR\$ 199,90\nWI-FI PLUS 5 EM COMODATO\nINTERNET 25 GB NO MÓVEL\nLIGAÇÕES ILIMITADAS NO MÓVEL\nACUMULO DO MÊS ANTERIOR\nPORTABILIDADE GRATUITA\nFIBRA STREAMING + TV\nTELEFONIA FIXA ILIMITADA\nTELEMEDICINA SULAMERICA\nFIDELIDADE DE 12 MESES\nSEM CONSUMO DE DADOS\n(*PAGAMENTO VIA PIX ATÉ O VENCIMENTO)',
-        },
-      ];
-    } else if (planType == 'Internet') {
-      return [
-        {
-          'title': 'PLANO 200 MEGA',
-          'description':
-              '200 MEGA DOWNLOAD\n70 MEGA UPLOAD\n\nR\$ 69,90\nPLANO START\n100% FIBRA ÓPTICA\nOPTICAL NETWORK UNIT\nIPV4 E IPV6\nFIBRA STREAMING ON DEMAND',
-        },
-        {
-          'title': 'PLANO 300 MEGA',
-          'description':
-              '300 MEGA DOWNLOAD\n100 MEGA UPLOAD\n\nR\$ 89,90\nPLANO FLASH\n100% FIBRA ÓPTICA\nWI-FI 5 PLUS ONT\nIPV4 E IPV6\nFIBRA STREAMING\nFIBRA TV 63 CANAIS HD',
-        },
-        {
-          'title': 'PLANO 400 MEGA',
-          'description':
-              '400 MEGA DOWNLOAD\n150 MEGA UPLOAD\n\nR\$ 99,90\nPLANO ULTRA\n100% FIBRA ÓPTICA\nWI-FI 5 PLUS ONT\nIPV4 E IPV6\nFIBRA STREAMING\nFIBRA TV 97 CANAIS HD',
-        },
-        {
-          'title': 'PLANO 500 MEGA',
-          'description':
-              '500 MEGA DOWNLOAD\n200 MEGA UPLOAD\n\nR\$ 119,90\nPLANO POWER\n100% FIBRA ÓPTICA\nWI-FI 5 PLUS ONT\nIPV4 E IPV6\nFIBRA STREAMING\nFIBRA TV 134 CANAIS HD',
-        },
-        {
-          'title': 'PLANO 700 MEGA',
-          'description':
-              '700 MEGA DOWNLOAD\n300 MEGA UPLOAD\n\nR\$ 139,90\nPLANO FAST\n100% FIBRA ÓPTICA\nWI-FI 5 PLUS ONT\nIPV4 E IPV6\nFIBRA STREAMING\nFIBRA TV 153 CANAIS FHD',
-        },
-        {
-          'title': 'PLANO GAMER 1 GIGA',
-          'description':
-              '1 GIGA DOWNLOAD\n500 MEGA UPLOAD\n\nR\$ 199,90\nIP PUBLICO\nPING MAIS BAIXO\nUPLOAD = DOWNLOAD\nWI-FI 6 PLUS ONT\nMELHORES ROTAS\nNAT-1',
-        },
-      ];
-    } else if (planType == 'Avançado') {
-      return [
-        {
-          'title': 'SMART - 17 GB',
-          'description':
-              '12 GB + 5 GB Portabilidade*\nAcumulo do mês anterior\nLigação Ilimitada\nPortabilidade Gratuita\nSem Consulta SPC/SERASA\nSem Surpresa na Conta\nSem Consumo de Dados\n(*PAGAMENTO ANTES DO VENCIMENTO)\nR\$ 54,90',
-        },
-        {
-          'title': 'STREAMING - 25 GB',
-          'description':
-              '20 GB + 5 GB Portabilidade*\nAcumulo do mês anterior\nLigação Ilimitada\nPortabilidade Gratuita\nSem Consulta SPC/SERASA\nSem Surpresa na Conta\nSem Consumo de Dados\n(*PAGAMENTO ANTES DO VENCIMENTO)\nR\$ 64,90',
-        },
-        {
-          'title': 'WORK - 47 GB',
-          'description':
-              '42 GB + 5 GB Portabilidade*\nAcumulo do mês anterior\nLigação Ilimitada\nPortabilidade Gratuita\nSem Consulta SPC/SERASA\nSem Surpresa na Conta\nSem Consumo de Dados\n(*PAGAMENTO ANTES DO VENCIMENTO)\nR\$ 84,90',
-        },
-        {
-          'title': 'BASIC - 9 GB',
-          'description':
-              '4 GB + 5 GB Portabilidade*\nAcumulo do mês anterior\nLigação Ilimitada\nPortabilidade Gratuita\nSem Consulta SPC/SERASA\nSem Surpresa na Conta\nSem Consumo de Dados\n(*PAGAMENTO ANTES DO VENCIMENTO)\nR\$ 39,90',
-        },
-        {
-          'title': 'TALK - 12 GB',
-          'description':
-              '7 GB + 5 GB Portabilidade*\nAcumulo do mês anterior\nLigação Ilimitada\nPortabilidade Gratuita\nSem Consulta SPC/SERASA\nSem Surpresa na Conta\nSem Consumo de Dados\n(*PAGAMENTO ANTES DO VENCIMENTO)\nR\$ 44,90',
-        },
-      ];
-    } else {
-      return [];
-    }
   }
 
   @override
@@ -184,6 +105,9 @@ class MenuScreen extends StatelessWidget {
                     margin: const EdgeInsets.all(8.0),
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(0xFFFFA00D),
+                        foregroundColor: Colors.white,
+                        textStyle: TextStyle(fontWeight: FontWeight.bold),
                         padding: const EdgeInsets.symmetric(vertical: 20),
                       ),
                       onPressed: () {
@@ -197,6 +121,9 @@ class MenuScreen extends StatelessWidget {
                     margin: const EdgeInsets.all(8.0),
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(0xFFFFA00D),
+                        foregroundColor: Colors.white,
+                        textStyle: TextStyle(fontWeight: FontWeight.bold),
                         padding: const EdgeInsets.symmetric(vertical: 20),
                       ),
                       onPressed: () {
@@ -210,6 +137,9 @@ class MenuScreen extends StatelessWidget {
                     margin: const EdgeInsets.all(8.0),
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(0xFFFFA00D),
+                        foregroundColor: Colors.white,
+                        textStyle: TextStyle(fontWeight: FontWeight.bold),
                         padding: const EdgeInsets.symmetric(vertical: 20),
                       ),
                       onPressed: () {
@@ -223,12 +153,47 @@ class MenuScreen extends StatelessWidget {
                     margin: const EdgeInsets.all(8.0),
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(0xFFFFA00D),
+                        foregroundColor: Colors.white,
+                        textStyle: TextStyle(fontWeight: FontWeight.bold),
                         padding: const EdgeInsets.symmetric(vertical: 20),
                       ),
                       onPressed: () {
                         _showPlanModal(context, 'Avançado');
                       },
                       child: const Text('Planos Telefonia Móvel'),
+                    ),
+                  ),
+                  Container(
+                    width: 500,
+                    margin: const EdgeInsets.all(8.0),
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(0xFFFFA00D),
+                        foregroundColor: Colors.white,
+                        textStyle: TextStyle(fontWeight: FontWeight.bold),
+                        padding: const EdgeInsets.symmetric(vertical: 20),
+                      ),
+                      onPressed: () {
+                        _showPlanModal(context, 'TV');
+                      },
+                      child: const Text('TV por Assinatura'),
+                    ),
+                  ),
+                  Container(
+                    width: 500,
+                    margin: const EdgeInsets.all(8.0),
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(0xFFFFA00D),
+                        foregroundColor: Colors.white,
+                        textStyle: TextStyle(fontWeight: FontWeight.bold),
+                        padding: const EdgeInsets.symmetric(vertical: 20),
+                      ),
+                      onPressed: () {
+                        _showPlanModal(context, 'TelefoniaFixa');
+                      },
+                      child: const Text('Telefonia Fixa'),
                     ),
                   ),
                 ],
@@ -239,4 +204,91 @@ class MenuScreen extends StatelessWidget {
       ),
     );
   }
+}
+
+class PlanCard extends StatelessWidget {
+  final String title;
+  final String description;
+  final List<String> advantages;
+  final double minWidth;
+  final Key? key;
+
+  PlanCard({
+    this.key,
+    required this.title,
+    required this.description,
+    required this.advantages,
+    required this.minWidth,
+  });
+
+  @override
+  @override
+Widget build(BuildContext context) {
+  return Card(
+    color: Color.fromARGB(255, 255, 255, 255),
+    child: Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              constraints: BoxConstraints(minWidth: minWidth),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 28.0,
+                        color: Colors.black),
+                  ),
+                  SizedBox(height: 16.0),
+                  Container(
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
+                    decoration: BoxDecoration(
+                      color: Color(0xFFF79B14),
+                      borderRadius: BorderRadius.circular(20.0),
+                    ),
+                    child: Text(
+                      description,
+                      style: TextStyle(
+                        fontSize: 24.0,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 16.0),
+                  ...advantages.map((advantage) => Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8.0),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Icon(Icons.check, size: 24, color: Colors.green),
+                            SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                advantage,
+                                style: TextStyle(
+                                    fontSize: 20.0, color: Colors.black),
+                                textAlign: TextAlign.justify,
+                              ),
+                            ),
+                          ],
+                        ),
+                      )),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
 }
